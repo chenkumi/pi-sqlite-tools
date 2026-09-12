@@ -1,0 +1,46 @@
+{
+  "name": "pi-sqlite-tools",
+  "version": "0.1.0",
+  "description": "SQLite tools for pi",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "sqlite",
+    "sqlite-tools",
+    "ai-agent"
+  ],
+  "files": [
+    "extensions/sqlite/index.ts",
+    "extensions/sqlite/sqlite-manager.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "pi": {
+    "extensions": [
+      "./extensions/sqlite"
+    ]
+  },
+  "scripts": {
+    "test": "tsx --test extensions/sqlite/test/**/*.test.ts",
+    "check": "tsc --noEmit",
+    "pack:check": "npm pack --dry-run"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.20.2",
+    "tsx": "^4.23.0",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*"
+  }
+}

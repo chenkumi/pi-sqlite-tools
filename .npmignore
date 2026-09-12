@@ -1,0 +1,6 @@
+extensions/sqlite/node_modules/
+extensions/sqlite/test/
+extensions/sqlite/tsconfig.json
+extensions/sqlite/package.json
+extensions/sqlite/package-lock.json
+extensions/sqlite/.gitignore
