@@ -3,6 +3,14 @@
   "version": "0.1.0",
   "description": "SQLite tools for pi",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chenkumi/pi-sqlite-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chenkumi/pi-sqlite-tools/issues"
+  },
+  "homepage": "https://github.com/chenkumi/pi-sqlite-tools#readme",
   "type": "module",
   "keywords": [
     "pi-package",
