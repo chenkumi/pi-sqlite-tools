@@ -1,6 +1,8 @@
 # pi-sqlite-tools
 
-`pi-sqlite-tools` 是可由 [pi](https://github.com/earendil-works/pi-mono) 安裝的 package，提供以 `better-sqlite3` 實作的 SQLite tools。它由 `easy-sqlite-mcp` 移植而來，但不需要 MCP server 或 stdio transport。
+`pi-sqlite-tools` 是可由 [pi](https://github.com/earendil-works/pi-mono) 安裝的 package，提供以 Node.js 內建的 `node:sqlite` 模組實作的 SQLite tools。它由 `easy-sqlite-mcp` 移植而來，但不需要 MCP server 或 stdio transport。
+
+> 需要 Node.js 22.5 以上版本（提供 `node:sqlite` 模組），不再需要編譯原生模組。
 
 ## 安裝
 

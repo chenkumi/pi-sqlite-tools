@@ -1,4 +1,4 @@
-import Database from "better-sqlite3";
+import { DatabaseSync, type StatementSync } from "node:sqlite";
 
 export type SqlParams = readonly unknown[] | Record<string, unknown>;
 
@@ -10,14 +10,14 @@ export interface SqliteStatus {
 
 /** Manages one synchronous SQLite connection for the current pi session. */
 export class SqliteManager {
-  private database: Database.Database | undefined;
+  private database: DatabaseSync | undefined;
   private currentPath: string | undefined;
 
   open(filePath: string): { success: boolean; message: string } {
     try {
       this.closeIfOpen();
-      this.database = new Database(filePath);
-      this.database.pragma("journal_mode = WAL");
+      this.database = new DatabaseSync(filePath);
+      this.database.exec("PRAGMA journal_mode = WAL");
       this.currentPath = filePath;
       return { success: true, message: `Database opened: ${filePath}` };
     } catch (error) {
@@ -61,11 +61,11 @@ export class SqliteManager {
 
   query(sql: string, params?: SqlParams): { columns: string[]; rows: unknown[][]; rowCount: number } {
     const statement = this.getDatabase().prepare(sql);
-    if (!statement.reader) {
+    if (!isReader(statement)) {
       throw new Error("sqlite_query accepts only statements that return rows. Use sqlite_execute for writes.");
     }
 
-    const rows = this.bind(statement, params).all() as Record<string, unknown>[];
+    const rows = statement.all(...(this.bindArgs(params) as never[])) as Record<string, unknown>[];
     const columns = rows.length === 0 ? [] : Object.keys(rows[0]);
     return {
       columns,
@@ -74,13 +74,13 @@ export class SqliteManager {
     };
   }
 
-  execute(sql: string, params?: SqlParams): { changes: number; lastInsertRowid: number | bigint } {
+  execute(sql: string, params?: SqlParams): { changes: number | bigint; lastInsertRowid: number | bigint } {
     const statement = this.getDatabase().prepare(sql);
-    if (statement.reader) {
+    if (isReader(statement)) {
       throw new Error("sqlite_execute does not accept statements that return rows. Use sqlite_query instead.");
     }
 
-    const result = this.bind(statement, params).run();
+    const result = statement.run(...(this.bindArgs(params) as never[]));
     return { changes: result.changes, lastInsertRowid: result.lastInsertRowid };
   }
 
@@ -134,15 +134,16 @@ export class SqliteManager {
     };
   }
 
-  private getDatabase(): Database.Database {
+  private getDatabase(): DatabaseSync {
     if (!this.database) {
       throw new Error("No database is currently open. Use sqlite_open to open a database first.");
     }
     return this.database;
   }
 
-  private bind(statement: Database.Statement, params?: SqlParams): Database.Statement {
-    return params === undefined ? statement : statement.bind(params as never);
+  private bindArgs(params?: SqlParams): unknown[] {
+    if (params === undefined) return [];
+    return Array.isArray(params) ? [...params] : [params];
   }
 
   private closeIfOpen(): void {
@@ -151,6 +152,10 @@ export class SqliteManager {
     this.database = undefined;
     this.currentPath = undefined;
   }
+}
+
+function isReader(statement: StatementSync): boolean {
+  return statement.columns().length > 0;
 }
 
 function quoteSqlString(value: string): string {
